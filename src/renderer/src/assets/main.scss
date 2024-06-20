@@ -1,8 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.ck { 
+    h2{
+        font-size: 45px;
+    }
+
+    h3{
+        font-size: 35px;
+    }
+
+    h4{
+        font-size: 25px;
+    }
+
+    ul, ol, li, menu{
+        list-style: unset;
+        padding: 0 25px;
+
+        ::marker{
+            position: relative;
+            margin-left: 50px;
+        }
+    }
+}
+
+.ck-powered-by {
+    display: none;
+}
+
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 2px;
     /* Largura da barra de rolagem */
 }
 
@@ -45,26 +75,4 @@
     --ev-button-alt-hover-border: transparent;
     --ev-button-alt-hover-text: var(--ev-c-text-1);
     --ev-button-alt-hover-bg: var(--ev-c-gray-2);
-}
-
-*,
-*::after,
-*::before {
-    box-sizing: border-box;
-    margin: 0;
-    font-weight: normal;
-}
-
-ul {
-    list-style: none;
-}
-
-body {
-    color: var(--color-text);
-    background: var(--color-background);
-    line-height: 1.6;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
