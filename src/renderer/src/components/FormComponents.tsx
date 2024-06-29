@@ -1,27 +1,51 @@
-import React, { useState } from 'react'
+import React, { useState, useImperativeHandle, forwardRef } from 'react'
 
-export default function InlineInput({TittleInput, PlaceHolder}) {
+export function InlineInput ({ TittleInput, PlaceHolder, inputRef }) {
+    return (
+        <div>
+            <label>
+                {TittleInput}
+                <input
+                    ref={inputRef}
+                    className="border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-6"
+                    placeholder={PlaceHolder}
+                    type="text"
+                />
+            </label>
+        </div>
+    );
+};
+
+
+export function InlineInputFixed ({ TittleInput, PlaceHolder, inputRef ,valueInputFixed}) {
+    return (
+        <div>
+            <label>
+                {TittleInput}
+                <input
+                    ref={inputRef}
+                    className="border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-6"
+                    placeholder={PlaceHolder}
+                    type="text"
+                    value={valueInputFixed}
+                    readOnly
+                />
+            </label>
+        </div>
+    );
+};
+
+
+
+
+
+
+export function DateInput({ TittleInput, inputRef }) {
     return (
         <label>
             {TittleInput}
             <input
-                className="border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-6"
-                placeholder={PlaceHolder}
-                type="text"
-                name=""
-                id=""
-            />
-        </label>
-        
-    )
-}
-
-
-export function DateInput({ TittleInput }) {
-    return (
-        <label>
-            {TittleInput}
-            <input
+                ref={ inputRef }
                 className="border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-6"
                 type="date"
             />
@@ -30,7 +54,7 @@ export function DateInput({ TittleInput }) {
     )
 }
 
-export function DateInputOutput({ TittleInput, birthdate, setBirthdate, age, setAge, validDate, setValidDate }) {
+export function DateInputOutput({ TittleInput, birthdate, setBirthdate, age, setAge, validDate, setValidDate, inputRef }) {
 
     const handleInputChange = (event) => {
         const selectedDate = event.target.value;
@@ -66,13 +90,14 @@ export function DateInputOutput({ TittleInput, birthdate, setBirthdate, age, set
                 type="date"
                 value={birthdate}
                 onChange={handleInputChange}
+                ref={inputRef}
             />
         </label>
     );
 }
 
 
-export function NumInput({ TittleInput, PlaceHolder, maxValue, maxAlgarismo }) {
+export function NumInput({ TittleInput, PlaceHolder, maxValue, maxAlgarismo, inputRef }) {
     const [value, setValue] = useState('');
 
     const handleChange = (event) => {
@@ -102,6 +127,7 @@ export function NumInput({ TittleInput, PlaceHolder, maxValue, maxAlgarismo }) {
                     max={maxValue}
                     name=""
                     id=""
+                    ref={inputRef}
                 />
             </section>
         </label>
@@ -110,7 +136,7 @@ export function NumInput({ TittleInput, PlaceHolder, maxValue, maxAlgarismo }) {
 
 import { InputMask, type Track } from '@react-input/mask';
 
-export function ContactInput({ TittleInput }) {
+export function ContactInput({ TittleInput, inputRef }) {
     const track: Track = ({ inputType, value, data, selectionStart, selectionEnd }) => {
         if (inputType === 'insert' && !/^\D*/.test(data) && selectionStart <= 1) {
         return `1${data}`;
@@ -132,32 +158,39 @@ export function ContactInput({ TittleInput }) {
 
         <label>
             {TittleInput}
-            <InputMask className="border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-4"
-            placeholder="(00) 00000-0000" mask="(__) _____-____" replacement={{ _: /\d/ }} track={track} />
+            <InputMask
+                className="border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-4"
+                placeholder="(00) 00000-0000"
+                mask="(__) _____-____"
+                replacement={{ _: /\d/ }}
+                track={track}
+                ref={inputRef}
+            />
         </label>
     )
 }
 
-export function IrmãosInput() {
-    const [siblings,setSiblings] = useState([''])
+export function IrmãosInput(props, ref) {
+    const [siblings, setSiblings] = useState(['']);
+
+    useImperativeHandle(ref, () => ({
+        getSiblings: () => siblings
+    }));
 
     const addSiblingInput = () => {
-        setSiblings([
-            ...siblings,
-            ''
-        ])
-    }
+        setSiblings([...siblings, '']);
+    };
 
     const removeSiblingInput = (index) => {
-        const updatedSiblings = siblings.filter((_, idx) => idx !== index)
-        setSiblings(updatedSiblings)
-    }
+        const updatedSiblings = siblings.filter((_, idx) => idx !== index);
+        setSiblings(updatedSiblings);
+    };
 
     const handleSiblingInputChange = (index, event) => {
-        const updatedSiblings = [...siblings]
-        updatedSiblings[index] = event.target.value
-        setSiblings(updatedSiblings)
-    }
+        const updatedSiblings = [...siblings];
+        updatedSiblings[index] = event.target.value;
+        setSiblings(updatedSiblings);
+    };
 
     return (
         <section>
@@ -166,7 +199,10 @@ export function IrmãosInput() {
                 <input
                     className="border border-slate-300 rounded w-full px-4 py-2 text-slate-600"
                     placeholder="Irmão"
-                    type="text"/>
+                    type="text"
+                    value={siblings[0]}
+                    onChange={(event) => handleSiblingInputChange(0, event)}
+                />
                 <button
                     type="button"
                     onClick={addSiblingInput}
@@ -174,51 +210,60 @@ export function IrmãosInput() {
                     +
                 </button>
             </div>
-            {siblings.map((sibling, index) => (
-                <div key={index} className="relative w-full flex flex-row items-center mb-2">
+            {siblings.slice(1).map((sibling, index) => (
+                <div key={index + 1} className="relative w-full flex flex-row items-center mb-2">
                     <input
                         className="border w-full border-slate-300 rounded px-4 py-2 text-slate-600"
                         placeholder="Irmão"
                         type="text"
                         value={sibling}
-                        onChange={(event) => handleSiblingInputChange(index, event)}/>
+                        onChange={(event) => handleSiblingInputChange(index + 1, event)}
+                    />
                     <button
                         type="button"
-                        onClick={() => removeSiblingInput(index)}
+                        onClick={() => removeSiblingInput(index + 1)}
                         className="font-bold hover:text-white hover:bg-red-500 text-red-500 border border-red-500 p-2 rounded ml-2 text-center min-w-8">
                         -
-                    </button>
-                    <button
-                        type="button"
-                        onClick={addSiblingInput}
-                        className="font-bold hover:text-white hover:bg-emerald-600 text-emerald-600 border border-emerald-600 p-2 rounded ml-2 text-center min-w-8">
-                        +
                     </button>
                 </div>
             ))}
         </section>
-    )
+    );
 }
 
-export function RadioInput({ TittleInput, NameRadioInput, IdRadioInput }) {
+export default forwardRef(IrmãosInput);
+
+export function RadioInput({ TittleInput, NameRadioInput, IdRadioInput, inputRef }) {
     return (
         <label>
-            <input className="mr-2" type="radio" name={NameRadioInput} id={IdRadioInput} />
+            <input
+                className="mr-2"
+                type="radio"
+                name={NameRadioInput}
+                id={IdRadioInput}
+                ref={inputRef}
+            />
             {TittleInput}
         </label>
     )
 }
 
-export function CheckBoxInput({ TittleInput, NameCheckInput, IdCheckInput }) {
+export function CheckBoxInput({ TittleInput, NameCheckInput, IdCheckInput, inputRef }) {
     return (
         <label>
-            <input className="mr-2" type='checkbox' name={NameCheckInput} id={IdCheckInput} />
+            <input
+                className="mr-2"
+                type='checkbox'
+                name={NameCheckInput}
+                id={IdCheckInput}
+                ref={inputRef}
+            />
             {TittleInput}
         </label>
     )
 }
 
-export function SimpleTextInput({ TittleInput, placeholder }) {
+export function SimpleTextInput({ TittleInput, placeholder, inputRef }) {
     return (
             <div className="py-2 my-4">
                 {TittleInput}
@@ -228,7 +273,9 @@ export function SimpleTextInput({ TittleInput, placeholder }) {
                     name="textarea"
                     placeholder={placeholder}
                     rows={4}
-                    cols={50} />
+                    cols={50}
+                    ref={inputRef}
+                />
             </div>
         
     )
@@ -238,31 +285,33 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import TittleForm, { SubtittleForm } from './TittleForm';
 
-export function RichTextInput({className}) {
-    return(
+export function RichTextInput({ className, inputRef }) {
+    return (
         <div className={className}>
             <CKEditor
-                editor={ ClassicEditor }
-                config={{         
-                    toolbar: ['heading', '|', 'bold', 'italic', 'blockQuote', 'numberedList', 'bulletedList', 'imageUpload', 'insertTable', 'tableColumn', 'tableRow', 'mergeTableCells', '|', 'undo', 'redo']
-                }}  
-                onChange={ ( event ) => {
-                    console.log( event );
-                } }
-                
-                />
+                editor={ClassicEditor}
+                config={{
+                    toolbar: [
+                        'heading', '|', 'bold', 'italic', 'blockQuote', 'numberedList',
+                        'bulletedList', 'imageUpload', 'insertTable', 'tableColumn',
+                        'tableRow', 'mergeTableCells', '|', 'undo', 'redo'
+                    ]
+                }}
+                onReady={(editor) => {
+                    // Save the reference to the editor instance
+                    inputRef.current = editor;
+                }}
+            />
         </div>
-    )
-
-
+    );
 }
 
-export function GroupSelectInput({ titleInput, options }) {
+export function GroupSelectInput({ titleInput, options, inputRef }) {
     return (
         <div>
             {titleInput && <div>{titleInput}</div>}
             <label>
-                <select className="bg-white border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-2">
+                <select className="bg-white border border-slate-300 rounded px-4 py-2 w-full text-slate-600 mb-5" ref={inputRef}>
                     {options.map((group:any, index:any) => (
                         group.label ? (
                             <optgroup key={index} label={group.label}>
@@ -294,7 +343,8 @@ interface Question {
         value: string;
         question: string;
         inputType: string;
-        inputName: string;
+        name: string;
+        ref: any;
     };
 }
 
@@ -302,10 +352,10 @@ interface BooleanRadioInputProps {
     questions: Question[];
 }
 
-export function BooleanRadioInput({ questions }) {
-    const [followUpDetails, setFollowUpDetails] = useState({});
+export function BooleanRadioInput({ questions }: BooleanRadioInputProps) {
+    const [followUpDetails, setFollowUpDetails] = useState<{ [key: string]: boolean }>({});
 
-    const handleRadioChange = (event, followUp, name) => {
+    const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>, followUp: any, name: string) => {
         if (followUp) {
             setFollowUpDetails((prevDetails) => ({
                 ...prevDetails,
@@ -340,7 +390,8 @@ export function BooleanRadioInput({ questions }) {
                                 <input
                                     className="p-1 border rounded w-full"
                                     type={q.followUp.inputType}
-                                    name={q.followUp.inputName}
+                                    name={q.followUp.name}
+                                    ref={q.followUp.ref}
                                 />
                             </label>
                         </div>
@@ -351,7 +402,8 @@ export function BooleanRadioInput({ questions }) {
     );
 }
 
-export function TriagemNeonatal ({ initialCheckboxes }) {
+
+export function TriagemNeonatal({ initialCheckboxes }) {
     const [checkboxes, setCheckboxes] = useState(initialCheckboxes);
 
     const handleCheckboxChange = (id) => {
@@ -364,11 +416,19 @@ export function TriagemNeonatal ({ initialCheckboxes }) {
         );
     };
 
+    const handleRadioChange = (id, value) => {
+        setCheckboxes((prevCheckboxes) =>
+            prevCheckboxes.map((checkbox) =>
+                checkbox.id === id ? { ...checkbox, selectedRadio: value } : checkbox
+            )
+        );
+    };
+
     return (
-        <div className="my-8 ">
+        <div className="my-8">
             <SubtittleForm SubTittle={"Triagem Neonatal"} />
-            {checkboxes.map((checkbox: { id: React.Key | null | undefined; label: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; isChecked: any; radios: any[]; }) => (
-                <div key={checkbox.id} className="grid grid-cols-2">
+            {checkboxes.map((checkbox) => (
+                <div key={checkbox.id} className="grid grid-cols-2 mb-4">
                     <p>{checkbox.label}</p>
                     <label>
                         <input
@@ -390,7 +450,10 @@ export function TriagemNeonatal ({ initialCheckboxes }) {
                                         type="radio"
                                         name={`radio-${checkbox.id}`}
                                         id={`${radioLabel.toLowerCase()}-${checkbox.id}`}
-                                    />{' '}
+                                        value={radioLabel.toLowerCase()}
+                                        checked={checkbox.selectedRadio === radioLabel.toLowerCase()}
+                                        onChange={(e) => handleRadioChange(checkbox.id, e.target.value)}
+                                    />
                                     {radioLabel}
                                 </label>
                             ))}
@@ -400,13 +463,10 @@ export function TriagemNeonatal ({ initialCheckboxes }) {
             ))}
         </div>
     );
-};
+}
 
 
-
-
-
-export function ExamesSelect ({ initialSelects }) {
+export function ExamesSelect({ initialSelects }) {
     const [selects, setSelects] = useState(initialSelects);
 
     const handleSelectChange = (id, value) => {
@@ -415,6 +475,14 @@ export function ExamesSelect ({ initialSelects }) {
                 select.id === id
                     ? { ...select, selected: value }
                     : select
+            )
+        );
+    };
+
+    const handleRadioChange = (id, value) => {
+        setSelects((prevSelects) =>
+            prevSelects.map((select) =>
+                select.id === id ? { ...select, selectedRadio: value } : select
             )
         );
     };
@@ -448,6 +516,9 @@ export function ExamesSelect ({ initialSelects }) {
                                         type="radio"
                                         name={`radio-${select.id}`}
                                         id={`${radioLabel.toLowerCase()}-${select.id}`}
+                                        value={radioLabel.toLowerCase()}
+                                        checked={select.selectedRadio === radioLabel.toLowerCase()}
+                                        onChange={(e) => handleRadioChange(select.id, e.target.value)}
                                     />{' '}
                                     {radioLabel}
                                 </label>
@@ -458,4 +529,4 @@ export function ExamesSelect ({ initialSelects }) {
             ))}
         </div>
     );
-};
+}
